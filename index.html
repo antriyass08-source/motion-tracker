@@ -2,19 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hybrid Motion App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Blue Motion Ninja Studio — AR-style hand tracking with neon canvas effects. Draw in the air, slice fruits with your bare hands." />
+  <meta name="theme-color" content="#00060f" />
+  <meta property="og:title"       content="Blue Motion Ninja Studio" />
+  <meta property="og:description" content="Real-time AR hand tracking experience. No headset required." />
+  <title>Blue Motion Ninja Studio — AR Overlay</title>
+
+  <!-- Google Fonts preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- MediaPipe CDN (pinned version for stability) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+          crossorigin="anonymous"></script>
+
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-  <div id="mode">MODE: DRAW</div>
+  <!-- ═══════════ LOADING SCREEN ═══════════ -->
+  <div id="loading-screen">
+    <p class="logo-text">BLUE MOTION<br/>NINJA STUDIO</p>
+    <p class="logo-sub">AR OVERLAY SYSTEM · v2.0</p>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-fill"></div>
+    </div>
+    <p class="loading-status" id="load-status">INITIALIZING...</p>
+  </div>
 
-  <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
+  <!-- ═══════════ MAIN SCENE ═══════════ -->
+  <div id="scene">
 
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <!-- Raw webcam feed -->
+    <video id="webcam" autoplay muted playsinline></video>
+
+    <!-- Film-grain scan lines -->
+    <div id="scanline"></div>
+
+    <!-- Dark vignette -->
+    <div id="vignette"></div>
+
+    <!-- Mode-change ripple -->
+    <div id="ripple-overlay"></div>
+
+    <!-- Main AR canvas -->
+    <canvas id="ar-canvas"></canvas>
+
+    <!-- ── HUD ── -->
+    <div id="hud">
+
+      <!-- FPS -->
+      <div id="fps-counter">60 FPS</div>
+
+      <!-- Top bar: score -->
+      <div id="top-bar">
+        <div class="hud-badge">
+          <span class="hud-label">SCORE</span>
+          <span class="hud-value" id="score-val">0</span>
+        </div>
+      </div>
+
+      <!-- Mode indicator (top-right) -->
+      <div id="mode-indicator">
+        <div class="mode-tag draw" id="mode-tag">DRAW MODE</div>
+      </div>
+
+      <!-- Gesture hint (bottom-center) -->
+      <p id="gesture-hint">✊ FIST — TOGGLE MODE</p>
+
+      <!-- Corner AR brackets -->
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+    </div><!-- /hud -->
+
+    <!-- Toast notification -->
+    <div id="toast"></div>
+
+  </div><!-- /scene -->
 
   <script src="app.js"></script>
 </body>
