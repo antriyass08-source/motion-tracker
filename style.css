@@ -122,40 +122,67 @@ html, body {
   text-shadow: var(--glow-sm);
 }
 
-/* ── MODE INDICATOR ── */
-#mode-indicator {
+/* ── MODE BUTTONS (top-right) ── */
+#mode-buttons {
   position: absolute;
-  top: 22px;
-  right: 28px;
+  top: 18px;
+  right: 20px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
+  gap: 10px;
+  pointer-events: all;   /* buttons must be clickable */
 }
 
-.mode-tag {
+.mode-btn {
   font-family: 'Orbitron', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 3px;
-  padding: 5px 16px;
-  border-radius: 4px;
+  letter-spacing: 2px;
+  padding: 9px 18px;
+  border-radius: 6px;
   text-transform: uppercase;
-  transition: all 0.35s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  background: rgba(0, 6, 30, 0.7);
+  color: rgba(0, 245, 255, 0.45);
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 
-.mode-tag.draw {
+.mode-btn:hover {
+  border-color: rgba(0, 245, 255, 0.6);
   color: #00f5ff;
-  border: 1px solid #00f5ff88;
   background: rgba(0, 245, 255, 0.08);
-  box-shadow: 0 0 14px #00f5ff44;
 }
 
-.mode-tag.ninja {
+.mode-btn.active {
+  border-color: #00f5ff;
+  color: #00f5ff;
+  background: rgba(0, 245, 255, 0.13);
+  box-shadow: 0 0 16px #00f5ff44, inset 0 0 10px rgba(0,245,255,0.06);
+}
+
+#btn-ninja.active {
+  border-color: #ff4060;
   color: #ff4060;
-  border: 1px solid #ff406088;
-  background: rgba(255, 64, 96, 0.08);
-  box-shadow: 0 0 14px #ff406044;
+  background: rgba(255, 64, 96, 0.13);
+  box-shadow: 0 0 16px #ff406044, inset 0 0 10px rgba(255,64,96,0.06);
+}
+
+/* ── TRACKING STATUS (bottom-left) ── */
+#track-status {
+  position: absolute;
+  bottom: 28px;
+  left: 24px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(0, 245, 255, 0.4);
+  text-transform: uppercase;
+  pointer-events: none;
+  transition: color 0.3s;
 }
 
 /* ── GESTURE HINT ── */
@@ -297,30 +324,3 @@ html, body {
 .corner.tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
 .corner.bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
 .corner.br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
-
-/* ── NOTIFICATION TOAST ── */
-#toast {
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background: rgba(0, 6, 30, 0.85);
-  border: 1px solid rgba(0, 245, 255, 0.4);
-  backdrop-filter: blur(16px);
-  border-radius: 6px;
-  padding: 10px 28px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 13px;
-  letter-spacing: 2px;
-  color: var(--neon-cyan);
-  text-shadow: var(--glow-sm);
-  z-index: 20;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-#toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
