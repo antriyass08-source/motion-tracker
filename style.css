@@ -1,33 +1,326 @@
-body {
+/* ============================================
+   BLUE MOTION NINJA STUDIO — AR OVERLAY
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
-  overflow: hidden;
-  background: black;
+  padding: 0;
 }
 
-#video, #canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
+:root {
+  --neon-cyan:    #00f5ff;
+  --neon-blue:    #0080ff;
+  --neon-white:   #e0f7ff;
+  --plasma:       #7b2fff;
+  --glow-sm:      0 0 8px #00f5ff88;
+  --glow-md:      0 0 18px #00f5ffaa, 0 0 36px #0080ff66;
+  --glow-lg:      0 0 30px #00f5ff, 0 0 60px #0080ff88, 0 0 90px #7b2fff44;
+  --bg-dark:      #00060f;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* ── SCENE WRAPPER ── */
+#scene {
+  position: relative;
   width: 100vw;
   height: 100vh;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
-video {
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#mode {
+/* ── VIDEO FEED ── */
+#webcam {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);   /* mirror selfie */
+  filter: brightness(0.72) saturate(1.2) contrast(1.05);
+}
+
+/* ── VIGNETTE ── */
+#vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 48%,
+    rgba(0, 6, 15, 0.55) 70%,
+    rgba(0, 6, 15, 0.92) 100%
+  );
+  z-index: 2;
+}
+
+/* ── MAIN CANVAS ── */
+#ar-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ── HUD LAYER ── */
+#hud {
+  position: absolute;
+  inset: 0;
   z-index: 10;
-  color: white;
-  font-family: Arial;
-  font-size: 18px;
-  background: rgba(0,0,0,0.5);
-  padding: 8px 12px;
-  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* ── SCORE / MODE BADGE ── */
+#top-bar {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  pointer-events: none;
+}
+
+.hud-badge {
+  background: rgba(0, 6, 30, 0.75);
+  border: 1px solid rgba(0, 245, 255, 0.35);
+  backdrop-filter: blur(12px);
+  border-radius: 40px;
+  padding: 6px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  opacity: 0.65;
+}
+
+.hud-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--neon-white);
+  text-shadow: var(--glow-sm);
+}
+
+/* ── MODE INDICATOR ── */
+#mode-indicator {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.mode-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  padding: 5px 16px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  transition: all 0.35s ease;
+}
+
+.mode-tag.draw {
+  color: #00f5ff;
+  border: 1px solid #00f5ff88;
+  background: rgba(0, 245, 255, 0.08);
+  box-shadow: 0 0 14px #00f5ff44;
+}
+
+.mode-tag.ninja {
+  color: #ff4060;
+  border: 1px solid #ff406088;
+  background: rgba(255, 64, 96, 0.08);
+  box-shadow: 0 0 14px #ff406044;
+}
+
+/* ── GESTURE HINT ── */
+#gesture-hint {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: rgba(0, 245, 255, 0.45);
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: pulseHint 2.5s ease-in-out infinite;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+/* ── FPS counter ── */
+#fps-counter {
+  position: absolute;
+  top: 22px;
+  left: 28px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  color: rgba(0, 245, 255, 0.4);
+  letter-spacing: 2px;
+}
+
+/* ── LOADING SCREEN ── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 999;
+  transition: opacity 0.8s ease;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(20px, 4vw, 38px);
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--neon-white);
+  text-shadow: var(--glow-lg);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--neon-cyan);
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.loading-bar-wrap {
+  width: 260px;
+  height: 3px;
+  background: rgba(0, 245, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.loading-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+  box-shadow: var(--glow-md);
+  border-radius: 3px;
+  animation: barFill 2.2s ease forwards;
+}
+
+@keyframes barFill {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
+.loading-status {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: rgba(0, 245, 255, 0.55);
+  text-transform: uppercase;
+}
+
+/* ── RIPPLE OVERLAY ── */
+#ripple-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+/* ── SCAN LINE ── */
+#scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 245, 255, 0.018) 2px,
+    rgba(0, 245, 255, 0.018) 4px
+  );
+}
+
+/* ── CORNER BRACKETS ── */
+.corner {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-color: rgba(0, 245, 255, 0.55);
+  border-style: solid;
+  z-index: 11;
+  pointer-events: none;
+}
+.corner.tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
+.corner.tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
+.corner.bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
+.corner.br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
+
+/* ── NOTIFICATION TOAST ── */
+#toast {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(0, 6, 30, 0.85);
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  backdrop-filter: blur(16px);
+  border-radius: 6px;
+  padding: 10px 28px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-sm);
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
