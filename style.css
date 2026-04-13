@@ -4,21 +4,16 @@ body {
   background: black;
 }
 
-#video {
+#video, #canvas {
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  z-index: 1;
 }
 
-#canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2;
+/* IMPORTANT: keep same transform for both */
+#video, #canvas {
+  transform: scaleX(-1);
 }
