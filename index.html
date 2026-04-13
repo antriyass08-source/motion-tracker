@@ -3,66 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <meta name="description" content="Blue Motion Ninja Studio — AR-style hand tracking with neon canvas effects. Draw in the air, slice fruits with your bare hands." />
+  <meta name="description" content="Blue Motion Ninja Studio — AR-style hand tracking with neon canvas effects." />
   <meta name="theme-color" content="#00060f" />
-  <meta property="og:title"       content="Blue Motion Ninja Studio" />
-  <meta property="og:description" content="Real-time AR hand tracking experience. No headset required." />
   <title>Blue Motion Ninja Studio — AR Overlay</title>
 
-  <!-- Google Fonts preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <!-- MediaPipe CDN (pinned version for stability) -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-          crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
-          crossorigin="anonymous"></script>
+  <!-- MediaPipe — pinned stable versions -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js" crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-  <!-- ═══════════ LOADING SCREEN ═══════════ -->
+  <!-- LOADING SCREEN -->
   <div id="loading-screen">
     <p class="logo-text">BLUE MOTION<br/>NINJA STUDIO</p>
-    <p class="logo-sub">AR OVERLAY SYSTEM · v2.0</p>
-    <div class="loading-bar-wrap">
-      <div class="loading-bar-fill"></div>
-    </div>
+    <p class="logo-sub">AR OVERLAY SYSTEM · v3.0</p>
+    <div class="loading-bar-wrap"><div class="loading-bar-fill"></div></div>
     <p class="loading-status" id="load-status">INITIALIZING...</p>
   </div>
 
-  <!-- ═══════════ MAIN SCENE ═══════════ -->
+  <!-- MAIN SCENE -->
   <div id="scene">
-
-    <!-- Raw webcam feed -->
+    <!-- MediaPipe Camera feeds this video element -->
     <video id="webcam" autoplay muted playsinline></video>
 
-    <!-- Film-grain scan lines -->
     <div id="scanline"></div>
-
-    <!-- Dark vignette -->
     <div id="vignette"></div>
-
-    <!-- Mode-change ripple -->
     <div id="ripple-overlay"></div>
 
-    <!-- Main AR canvas -->
     <canvas id="ar-canvas"></canvas>
 
-    <!-- ── HUD ── -->
+    <!-- HUD -->
     <div id="hud">
+      <div id="fps-counter">-- FPS</div>
 
-      <!-- FPS -->
-      <div id="fps-counter">60 FPS</div>
-
-      <!-- Top bar: score -->
+      <!-- Score top-center -->
       <div id="top-bar">
         <div class="hud-badge">
           <span class="hud-label">SCORE</span>
@@ -70,25 +50,27 @@
         </div>
       </div>
 
-      <!-- Mode indicator (top-right) -->
-      <div id="mode-indicator">
-        <div class="mode-tag draw" id="mode-tag">DRAW MODE</div>
+      <!-- Mode buttons top-right -->
+      <div id="mode-buttons">
+        <button class="mode-btn active" id="btn-draw" onclick="setMode('draw')">✦ DRAW</button>
+        <button class="mode-btn"        id="btn-ninja" onclick="setMode('ninja')">⚔ NINJA</button>
       </div>
 
-      <!-- Gesture hint (bottom-center) -->
-      <p id="gesture-hint">✊ FIST — TOGGLE MODE</p>
+      <!-- Status bottom-left -->
+      <div id="track-status">● WAITING FOR HAND...</div>
 
-      <!-- Corner AR brackets -->
+      <!-- Gesture hint bottom-center -->
+      <p id="gesture-hint">POINT YOUR INDEX FINGER AT THE CAMERA</p>
+
+      <!-- Corner brackets -->
       <div class="corner tl"></div>
       <div class="corner tr"></div>
       <div class="corner bl"></div>
       <div class="corner br"></div>
-    </div><!-- /hud -->
+    </div>
 
-    <!-- Toast notification -->
     <div id="toast"></div>
-
-  </div><!-- /scene -->
+  </div>
 
   <script src="app.js"></script>
 </body>
