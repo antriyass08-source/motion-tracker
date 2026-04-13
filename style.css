@@ -13,15 +13,16 @@ body {
   object-fit: cover;
   transform: scaleX(-1);
 }
+
 #mode {
   position: absolute;
   top: 15px;
   left: 15px;
+  z-index: 10;
   color: white;
-  font-size: 18px;
   font-family: Arial;
+  font-size: 18px;
   background: rgba(0,0,0,0.5);
   padding: 8px 12px;
   border-radius: 8px;
-  z-index: 10;
 }
