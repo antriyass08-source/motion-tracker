@@ -58,7 +58,7 @@ function onResults(results) {
   const lm = results.multiHandLandmarks[0];
 
   // NORMAL coordinates (mirror handled only by CSS)
-  const rawX = lm[8].x * canvasElement.width;
+  const rawX = (1 - lm[8].x) * canvasElement.width;
   const rawY = lm[8].y * canvasElement.height;
 
   // smoothing
