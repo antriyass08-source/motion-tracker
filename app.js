@@ -1,6 +1,7 @@
 const videoElement = document.getElementById("video");
 const canvasElement = document.getElementById("canvas");
 const ctx = canvasElement.getContext("2d");
+const modeUI = document.getElementById("mode");
 
 function resize() {
   canvasElement.width = window.innerWidth;
@@ -9,24 +10,39 @@ function resize() {
 resize();
 window.addEventListener("resize", resize);
 
-// STATES
-let mode = "draw"; // draw | ninja
+// STATE
+let mode = "draw";
 let prevX = null;
 let prevY = null;
+let lastToggle = 0;
 
 // smoothing
 let smoothX = 0;
 let smoothY = 0;
 const alpha = 0.25;
 
-function isFist(landmarks) {
-  // simple fist detection: all fingertips below knuckles
+// swipe tracking
+let prevPoints = [];
+
+function isFist(lm) {
   return (
-    landmarks[8].y > landmarks[6].y &&
-    landmarks[12].y > landmarks[10].y &&
-    landmarks[16].y > landmarks[14].y &&
-    landmarks[20].y > landmarks[18].y
+    lm[8].y > lm[6].y &&
+    lm[12].y > lm[10].y &&
+    lm[16].y > lm[14].y &&
+    lm[20].y > lm[18].y
   );
+}
+
+function getSpeed() {
+  if (prevPoints.length < 2) return 0;
+
+  const a = prevPoints[0];
+  const b = prevPoints[prevPoints.length - 1];
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 function onResults(results) {
@@ -35,36 +51,39 @@ function onResults(results) {
   if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
     prevX = null;
     prevY = null;
+    prevPoints = [];
     return;
   }
 
-  const landmarks = results.multiHandLandmarks[0];
+  const lm = results.multiHandLandmarks[0];
 
-  // coords
-  const rawX = (1 - landmarks[8].x) * canvasElement.width;
-  const rawY = landmarks[8].y * canvasElement.height;
+  // NORMAL coordinates (mirror handled only by CSS)
+  const rawX = lm[8].x * canvasElement.width;
+  const rawY = lm[8].y * canvasElement.height;
 
+  // smoothing
   smoothX += (rawX - smoothX) * alpha;
   smoothY += (rawY - smoothY) * alpha;
 
   const x = smoothX;
   const y = smoothY;
 
-  // MODE TOGGLE (fist gesture)
-  if (isFist(landmarks)) {
+  // toggle mode (cooldown to prevent spam)
+  const now = Date.now();
+  if (isFist(lm) && now - lastToggle > 1200) {
     mode = mode === "draw" ? "ninja" : "draw";
+    lastToggle = now;
   }
 
-  // MODE DISPLAY
-  ctx.fillStyle = "white";
-  ctx.font = "18px Arial";
-  ctx.fillText("Mode: " + mode.toUpperCase(), 20, 30);
+  modeUI.innerText = "MODE: " + mode.toUpperCase();
 
-  // -----------------------
-  // DRAW MODE
-  // -----------------------
+  // track movement history (for swipe)
+  prevPoints.push({ x, y });
+  if (prevPoints.length > 5) prevPoints.shift();
+
+  // ---------------- DRAW MODE ----------------
   if (mode === "draw") {
-    const isIndexUp = landmarks[8].y < landmarks[6].y;
+    const isIndexUp = lm[8].y < lm[6].y;
 
     if (isIndexUp) {
       if (prevX !== null && prevY !== null) {
@@ -91,16 +110,14 @@ function onResults(results) {
     ctx.fill();
   }
 
-  // -----------------------
-  // NINJA MODE (base only)
-  // -----------------------
+  // ---------------- NINJA MODE ----------------
   if (mode === "ninja") {
-    ctx.fillStyle = "red";
+    const speed = getSpeed();
+
+    ctx.fillStyle = speed > 20 ? "lime" : "red";
     ctx.beginPath();
     ctx.arc(x, y, 10, 0, Math.PI * 2);
     ctx.fill();
-
-    // (future: fruit collision + swipe detection here)
   }
 }
 
@@ -119,7 +136,7 @@ hands.setOptions({
 
 hands.onResults(onResults);
 
-// camera
+// Camera
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     await hands.send({ image: videoElement });
