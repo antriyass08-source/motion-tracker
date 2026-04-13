@@ -2,8 +2,19 @@ const videoElement = document.getElementById("video");
 const canvasElement = document.getElementById("canvas");
 const ctx = canvasElement.getContext("2d");
 
-canvasElement.width = window.innerWidth;
-canvasElement.height = window.innerHeight;
+// IMPORTANT: match actual display size
+function resizeCanvas() {
+  canvasElement.width = window.innerWidth;
+  canvasElement.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+// smoothing variables
+let smoothX = 0;
+let smoothY = 0;
+const alpha = 0.25;
 
 function onResults(results) {
   ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -11,16 +22,22 @@ function onResults(results) {
   if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
     const landmarks = results.multiHandLandmarks[0];
 
-    const x = landmarks[8].x * canvasElement.width;
-    const y = landmarks[8].y * canvasElement.height;
+    // raw normalized coordinates
+    const rawX = landmarks[8].x * canvasElement.width;
+    const rawY = landmarks[8].y * canvasElement.height;
+
+    // smoothing (fix jitter + misalignment feel)
+    smoothX += (rawX - smoothX) * alpha;
+    smoothY += (rawY - smoothY) * alpha;
 
     ctx.fillStyle = "cyan";
     ctx.beginPath();
-    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.arc(smoothX, smoothY, 10, 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
+// MediaPipe setup
 const hands = new Hands({
   locateFile: (file) =>
     `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
@@ -35,6 +52,7 @@ hands.setOptions({
 
 hands.onResults(onResults);
 
+// Camera setup (correct binding)
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     await hands.send({ image: videoElement });
