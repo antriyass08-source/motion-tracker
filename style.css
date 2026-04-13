@@ -13,6 +13,11 @@ body {
   object-fit: cover;
   transform: scaleX(-1);
 }
+video {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
 
 #mode {
   position: absolute;
