@@ -41,7 +41,7 @@ function onResults(results) {
   const landmarks = results.multiHandLandmarks[0];
 
   // coords
-  const rawX = (1 - landmarks[8].x) * canvasElement.width;
+  const rawX = landmarks[8].x * canvasElement.width;
   const rawY = landmarks[8].y * canvasElement.height;
 
   smoothX += (rawX - smoothX) * alpha;
