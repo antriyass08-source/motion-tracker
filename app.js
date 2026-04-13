@@ -137,12 +137,38 @@ hands.setOptions({
 hands.onResults(onResults);
 
 // Camera
-const camera = new Camera(videoElement, {
-  onFrame: async () => {
-    await hands.send({ image: videoElement });
-  },
-  width: 1280,
-  height: 720,
+const hands = new Hands({
+  locateFile: (file) =>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
 });
 
-camera.start();
+hands.setOptions({
+  maxNumHands: 1,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.7,
+});
+
+hands.onResults(onResults);
+
+async function startCamera() {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true
+  });
+
+  videoElement.srcObject = stream;
+
+  await videoElement.play();
+
+  const camera = new Camera(videoElement, {
+    onFrame: async () => {
+      await hands.send({ image: videoElement });
+    },
+    width: 1280,
+    height: 720,
+  });
+
+  camera.start();
+}
+
+startCamera();
