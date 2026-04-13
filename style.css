@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+}
+
+/* show camera for debugging */
+video {
+  position: absolute;
+  width: 250px;
+  bottom: 10px;
+  right: 10px;
+  border: 2px solid white;
+}
+
+/* main canvas */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
