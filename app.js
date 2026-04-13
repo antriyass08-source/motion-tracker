@@ -1,11 +1,26 @@
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const videoElement = document.getElementById("video");
+const canvasElement = document.getElementById("canvas");
+const ctx = canvasElement.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvasElement.width = window.innerWidth;
+canvasElement.height = window.innerHeight;
 
-// Initialize MediaPipe Hands
+function onResults(results) {
+  ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    const landmarks = results.multiHandLandmarks[0];
+
+    const x = landmarks[8].x * canvasElement.width;
+    const y = landmarks[8].y * canvasElement.height;
+
+    ctx.fillStyle = "cyan";
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 const hands = new Hands({
   locateFile: (file) =>
     `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
@@ -13,34 +28,19 @@ const hands = new Hands({
 
 hands.setOptions({
   maxNumHands: 1,
+  modelComplexity: 1,
   minDetectionConfidence: 0.7,
   minTrackingConfidence: 0.7,
 });
 
-// When results come in
-hands.onResults((results) => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+hands.onResults(onResults);
 
-  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-    const lm = results.multiHandLandmarks[0][8]; // index finger tip
-
-    const x = lm.x * canvas.width;
-    const y = lm.y * canvas.height;
-
-    ctx.beginPath();
-    ctx.arc(x, y, 10, 0, Math.PI * 2);
-    ctx.fillStyle = "cyan";
-    ctx.fill();
-  }
-});
-
-// Start camera (MediaPipe way)
-const camera = new Camera(video, {
+const camera = new Camera(videoElement, {
   onFrame: async () => {
-    await hands.send({ image: video });
+    await hands.send({ image: videoElement });
   },
-  width: 640,
-  height: 480,
+  width: 1280,
+  height: 720,
 });
 
 camera.start();
