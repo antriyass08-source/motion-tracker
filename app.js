@@ -33,7 +33,7 @@ function onResults(results) {
   const landmarks = results.multiHandLandmarks[0];
 
   // FIXED MIRROR COORDINATE
-  const rawX = landmarks[8].x * canvasElement.width;
+  const rawX = (1 - landmarks[8].x) * canvasElement.width;
   const rawY = landmarks[8].y * canvasElement.height;
 
   // smoothing
